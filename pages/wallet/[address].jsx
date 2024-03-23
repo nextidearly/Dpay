@@ -101,7 +101,7 @@ export default function WalletOthers() {
                 <div className="in-card" key={iterm.inscriptionNumber}>
                   <div className="in-content">
                     <iframe
-                      src={iterm.content}
+                      src={`https://wonky-ord.dogeord.io/preview/${iterm.inscriptionId}`}
                       frameBorder="0"
                       key={iterm.inscriptionNumber}
                       className="block bg-black rounded-md w-full h-full"

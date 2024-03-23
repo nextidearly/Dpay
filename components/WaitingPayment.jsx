@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import QRCode from "react-qr-code";
-import { FaCopy, FaCheck } from "react-icons/fa";
 import Countdown from "react-countdown";
+import { FaCopy, FaCheck } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { WalletContext } from "@/context/wallet";
 import { InscribeContext } from "@/context/inscribe";
 import { useEffect } from "react";
 import { feeAmount } from "@/configs/constants";
+import { Checkbox } from "pretty-checkbox-react";
 
 const WaitingPayment = ({ totalFee, networkFee }) => {
   const fundingAddress = "DAMH5oGgg2PPR2D8a5WoKB9RQmjynbmPUR";
@@ -72,41 +73,13 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
     setPaymentType(type);
   };
 
-  useEffect(() => {
-    // Prevent tab close
-    window.addEventListener("beforeunload", function (e) {
-      // Cancel the event
-      e.preventDefault();
-      // Chrome requires returnValue to be set
-      e.returnValue = "";
-    });
-
-    // Prevent page refresh using F5 key
-    document.addEventListener("keydown", function (e) {
-      // Check if the F5 key is pressed
-      if (e.keyCode === 116) {
-        // Cancel the event
-        e.preventDefault();
-      }
-    });
-
-    // Prevent page refresh using browser's refresh button
-    window.addEventListener("keydown", function (e) {
-      // Check if the browser's refresh button is pressed
-      if (e.keyCode === 82 && (e.ctrlKey || e.metaKey)) {
-        // Cancel the event
-        e.preventDefault();
-      }
-    });
-  }, []);
-
   return (
-    <div className="py-2 flex justify-center relative">
-      <div className="payment-card relative">
+    <div className="py-2 flex justify-center relative w-full">
+      <div className="payment-card relative w-full">
         {fundingAddress ? (
           <>
             <div className="pb-3 w-full">
-              <h4 className="text-2xl text-center text-gray-800">
+              <h4 className="text-2xl text-center text-gray-800 dark:text-gray-100">
                 Waiting on Payment in{" "}
                 <Countdown
                   date={Number(inscribeContext?.pendingOrder)}
@@ -114,69 +87,62 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                 />
               </h4>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 w-full mb-3 bg-gray-200">
-              <div className="p-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 w-full mb-3 bg-gray-200 dark:bg-slate-600">
+              <div className="p-1 w-full">
                 <div
-                  className={`flex  items-center p-3 w-full cursor-pointer h-full ${
-                    paymentType === "chain" ? "bg-gray-300" : ""
+                  className={`flex items-center px-3 py-4 w-full cursor-pointer h-full ${
+                    paymentType === "chain"
+                      ? "dark:bg-slate-700 bg-gray-100"
+                      : ""
                   }`}
                   onClick={() => handlePaymentType("chain")}
                 >
-                  <input
-                    checked={paymentType === "chain" ? "checked" : ""}
-                    id="default-DPAY-1"
-                    type="DPAY"
-                    value={paymentType}
+                  <Checkbox
+                    animation="jelly"
+                    color="danger"
+                    icon={<i className="mdi mdi-check" />}
                     onChange={() => handlePaymentType("chain")}
-                    name="default-DPAY"
-                    className="w-4 h-4 text-gray-300  bg-gray-100 border-gray-300 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="default-DPAY-1"
-                    className="ml-2 text-gray-700  cursor-pointer"
+                    checked={paymentType === "chain" ? "checked" : ""}
                   >
                     Pay on chain DOGE
-                  </label>
+                  </Checkbox>
                 </div>
               </div>
-              <div className="p-1">
+              <div className="p-1 w-full">
                 {" "}
                 <div
-                  className={`flex  items-center p-3 w-full cursor-pointer h-full ${
-                    paymentType === "wallet" ? "bg-gray-300" : ""
+                  className={`flex items-center px-3 py-4 w-full cursor-pointer h-full ${
+                    paymentType === "wallet"
+                      ? "dark:bg-slate-700 bg-gray-100"
+                      : ""
                   }`}
                   onClick={() => handlePaymentType("wallet")}
                 >
-                  <input
-                    checked={paymentType === "wallet" ? "checked" : ""}
-                    id="default-DPAY-2"
-                    type="DPAY"
-                    value={paymentType}
-                    name="default-DPAY"
+                  <Checkbox
+                    animation="jelly"
+                    color="danger"
+                    icon={<i className="mdi mdi-check" />}
                     onChange={() => handlePaymentType("wallet")}
-                    className="w-4 h-4 text-gray-300  bg-gray-100 border-gray-300 focus:ring-blue-500"
-                  />
-                  <label
-                    htmlFor="default-DPAY-2 "
-                    className="ml-2 text-gray-700  cursor-pointer"
+                    checked={paymentType === "wallet" ? "checked" : ""}
                   >
                     Pay with Wallet
-                  </label>
+                  </Checkbox>
                 </div>
               </div>
             </div>
+
             <div className="flex flex-col items-center">
-              <div className="flex gap-1 text-gray-700">
+              <div className="flex gap-1 text-gray-700 dark:text-gray-200">
                 <div>Service Fee : </div>
                 <div>{feeAmount}</div>
               </div>
 
-              <div className="flex gap-1 text-gray-700">
+              <div className="flex gap-1 text-gray-700 dark:text-gray-200">
                 <div>Network Fee : </div>
                 <div>{networkFee}</div>
               </div>
 
-              <div className="flex p-1 items-center text-gray-700 flex-wrap justify-center">
+              <div className="flex p-1 items-center text-gray-700 dark:text-gray-200 flex-wrap justify-center">
                 <div>Total Amount : </div>
                 <div className="flex items-center">
                   <span className="text-lg ml-1">
@@ -200,7 +166,7 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
               {paymentType === "chain" ? (
                 <div>
                   <div className="flex flex-col items-center justify-center">
-                    <p className="text-center text-gray-600 text-sm py-2">
+                    <p className="text-center text-gray-600 dark:text-gray-300 text-sm py-2">
                       Scan the QRCode to pay:
                     </p>
                     <div className="bg-gray-200 p-2.5 rounded drop-shadow-md shadow-sm shadow-black border-b border-t border-r border-l border-gray-300">
@@ -213,10 +179,10 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                       )}
                     </div>
                     <div className="pt-3 flex flex-col justify-center">
-                      <p className="text-center text-gray-600 text-sm">
+                      <p className="text-center text-gray-600 dark:text-gray-300 text-sm">
                         or Copy address below
                       </p>
-                      <p className="text-center flex justify-center text-gray-700">
+                      <p className="text-center flex justify-center text-gray-700 dark:text-gray-200">
                         {fundingAddress.slice(0, 15)}
                         ...
                         {fundingAddress.slice(-15)}
@@ -239,14 +205,14 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                         </span>
                       </p>
                     </div>
-                    <p className="text-center text-gray-600 text-sm mt-4">
+                    <p className="text-center text-gray-600 dark:text-gray-300 text-sm mt-4">
                       After payment is made, you will receive the inscription
                       within at least 20 minutes.
                     </p>
                     <a
                       href="https://bitcoin.org/en/buy"
                       target="_blank"
-                      className="underline hover:text-orange-400 transition ease-linear text-gray-700"
+                      className="underline hover:text-orange-400 transition ease-linear text-gray-700 dark:text-gray-200"
                     >
                       Need DOGE? Click here to buy some DOGE!
                     </a>
@@ -255,7 +221,7 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
               ) : (
                 <div className="w-full">
                   <div className="flex flex-col items-center justify-center">
-                    <p className="text-center text-gray-600 text-sm py-2">
+                    <p className="text-center text-gray-600 dark:text-gray-300 text-sm py-2">
                       Scan the QRCode to pay:
                     </p>
                     <div className="bg-gray-200 p-2.5 rounded drop-shadow-md shadow-sm shadow-black border-b border-t border-r border-l border-gray-300">
@@ -267,18 +233,14 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                         />
                       )}
                     </div>
-                    <p className="text-center text-red-600 text-sm py-2 mt-3">
-                      Once you sent the amount, do NOT close this window and
-                      wait for every step to complete!
-                    </p>
-                    <p className="text-center text-gray-600 text-sm py-2">
+                    <p className="text-center text-gray-600 dark:text-gray-300 text-sm py-2">
                       You will receive the inscription within at least 10
                       minutes.
                     </p>
                     <a
                       href="https://bitcoin.org/en/buy"
                       target="_blank"
-                      className="underline hover:text-orange-400 transition ease-linear text-gray-700"
+                      className="underline hover:text-orange-400 transition ease-linear text-gray-700 dark:text-gray-200"
                     >
                       Need DOGE? Click here to buy some DOGE!
                     </a>

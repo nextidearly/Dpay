@@ -124,7 +124,8 @@ body {
 }
 
 .cs-border {
-  border: 0.1px solid rgba(209, 208, 208, 0.336) !important;
+  
+  border: 0.1px solid rgba(143, 142, 142, 0.336) !important;
 }
 
 .banner {
@@ -156,4 +157,10 @@ iframe html body {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+}
+
+.hide-number-btn::-webkit-outer-spin-button,
+.hide-number-btn::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

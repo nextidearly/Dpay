@@ -14,11 +14,11 @@ export default function FeeRecommend({ setFeeOption }) {
 
   const [feeOptions, setFeeOptions] = useState([]);
 
-  useEffect(() => {
-    wallet.getFeeSummary().then((v) => {
-      setFeeOptions([...v.list, { title: "Custom", feeRate: 0 }]);
-    });
-  }, []);
+  // useEffect(() => {
+  //   wallet.getFeeSummary().then((v) => {
+  //     setFeeOptions([...v.list, { title: "Custom", feeRate: 0 }]);
+  //   });
+  // }, []);
 
   const [feeOptionIndex, setFeeOptionIndex] = useState(FeeRateType.AVG);
   const [feeRateInputVal, setFeeRateInputVal] = useState("");
@@ -65,7 +65,7 @@ export default function FeeRecommend({ setFeeOption }) {
                       setFeeOptionIndex(index);
                     }}
                     className={`cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3 ${
-                      selected && "bg-[#dc2626]"
+                      selected && "bg-[#dc2626] text-white"
                     }`}
                   >
                     <p className="text-center text-sm font-semibold">
@@ -83,10 +83,10 @@ export default function FeeRecommend({ setFeeOption }) {
             </>
           ) : (
             <>
-              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3  h-[81px] bg-primary-dark/30  animate-pulse"></div>
-              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3  h-[81px] bg-primary-dark/30  animate-pulse"></div>
-              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3  h-[81px] bg-primary-dark/30  animate-pulse"></div>
-              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3  h-[81px] bg-primary-dark/30  animate-pulse"></div>
+              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3 h-[81px] dark:bg-slate-700 bg-gray-100 animate-pulse"></div>
+              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3 h-[81px] dark:bg-slate-700 bg-gray-100 animate-pulse"></div>
+              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3 h-[81px] dark:bg-slate-700 bg-gray-100 animate-pulse"></div>
+              <div className="cursor-pointer flex justify-center flex-col rounded-md cs-border px-2 w-full py-3 h-[81px] dark:bg-slate-700 bg-gray-100 animate-pulse"></div>
             </>
           )}
         </>

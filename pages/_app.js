@@ -1,11 +1,12 @@
 "use client";
+import "@djthoms/pretty-checkbox";
 import "@/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import "tailwindcss/tailwind.css";
 import NextNProgress from "nextjs-progressbar";
 import Head from "next/head";
 import WalletContext from "@/context/wallet";
-import InscribeDPAYContext from "@/context/inscribeDPAY";
+// import InscribeDPAYContext from "@/context/inscribeDPAY";
 import { ToastContainer } from "react-toastify";
 import { Provider } from "react-redux";
 import { makeStore } from "./../store/store";
@@ -36,13 +37,13 @@ function App({ Component, pageProps }) {
         <PersistGate loading={null} persistor={persistor}>
           <ThemeContextProvider>
             <ThemeProvider attribute="class">
-              <InscribeDPAYContext>
-                <WalletContext>
-                  <NextNProgress color="#185380" />
-                  <Component {...pageProps} />
-                  <ToastContainer />
-                </WalletContext>
-              </InscribeDPAYContext>
+              {/* <InscribeDPAYContext> */}
+              <WalletContext>
+                <NextNProgress color="#185380" />
+                <Component {...pageProps} />
+                <ToastContainer />
+              </WalletContext>
+              {/* </InscribeDPAYContext> */}
             </ThemeProvider>
           </ThemeContextProvider>
         </PersistGate>

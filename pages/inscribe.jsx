@@ -13,8 +13,14 @@ const Inscribe = () => {
       return <TextInscriptions />;
     } else if (type === "drc20") {
       return <Drc20Inscriptions />;
-    } else {
+    } else if (type === "file") {
       return <FileInscriptions />;
+    } else {
+      return (
+        <div className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3 h-[150px] flex justify-center items-center">
+          Coming Soon
+        </div>
+      );
     }
   };
 
@@ -27,31 +33,41 @@ const Inscribe = () => {
 
       <div className="mt-16">
         <div className="mx-auto max-w-[600px] w-full">
-          <div className="my-3 flex gap-2 p-3 rounded-md dark:bg-slate-800 bg-gray-300 mx-auto">
-            <button
-              onClick={() => setType("text")}
-              className={`px-4 py-2 rounded-md focus:outline-none ${
-                type === "text" ? "main_btn" : ""
-              }`}
-            >
-              Text
-            </button>
-            <button
-              onClick={() => setType("drc20")}
-              className={`px-4 py-2 rounded-md focus:outline-none ${
-                type === "drc20" ? "main_btn" : ""
-              }`}
-            >
-              Drc-20
-            </button>
-            <button
-              onClick={() => setType("file")}
-              className={`px-4 py-2 rounded-md focus:outline-none ${
-                type === "file" ? "main_btn" : ""
-              }`}
-            >
-              Files
-            </button>
+          <div className="mx-auto">
+            <div className="my-3 flex gap-2 p-2 rounded-md dark:bg-slate-800 bg-gray-200/80 mx-1">
+              <button
+                onClick={() => setType("text")}
+                className={`px-4 py-2 rounded-md focus:outline-none w-full text-center ${
+                  type === "text" ? "main_btn" : ""
+                }`}
+              >
+                Text
+              </button>
+              <button
+                onClick={() => setType("drc20")}
+                className={`px-4 py-2 rounded-md focus:outline-none w-full text-center ${
+                  type === "drc20" ? "main_btn" : ""
+                }`}
+              >
+                Drc-20
+              </button>
+              <button
+                onClick={() => setType("file")}
+                className={`px-4 py-2 rounded-md focus:outline-none w-full text-center ${
+                  type === "file" ? "main_btn" : ""
+                }`}
+              >
+                Files
+              </button>
+              <button
+                onClick={() => setType("dunes")}
+                className={`px-4 py-2 rounded-md focus:outline-none w-full text-center ${
+                  type === "dunes" ? "main_btn" : ""
+                }`}
+              >
+                Dunes
+              </button>
+            </div>
           </div>
           {renderContent()}
         </div>

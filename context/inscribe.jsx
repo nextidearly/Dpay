@@ -10,13 +10,13 @@ import {
 } from "firebase/database";
 import { db } from "@/services/firebase";
 import { v4 as uuidv4 } from "uuid";
-import { InscribeDPAYContext } from "./inscribeDPAY";
+// import { InscribeDPAYContext } from "./inscribeDPAY";
 import { useContext } from "react";
 
 export const InscribeContext = React.createContext();
 
 const Inscribe = (props) => {
-  const inscribeDPAYContext = useContext(InscribeDPAYContext);
+  // const inscribeDPAYContext = useContext(InscribeDPAYContext);
   const [minted, setMinted] = useState(false);
   const [mintFailed, setMintFailed] = useState(false);
   const [paymentAddress, setPaymentAddress] = useState();

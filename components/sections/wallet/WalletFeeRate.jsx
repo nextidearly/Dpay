@@ -61,8 +61,8 @@ export function FeeRateBar({ onChange }) {
               onClick={() => {
                 setFeeOptionIndex(index);
               }}
-              className={`cursor-pointer flex justify-center flex-col rounded-md border border-[#dee2e682!important]  p-2 ${
-                selected && "fee-selected"
+              className={`cursor-pointer flex justify-center flex-col rounded-md cs-border p-2 ${
+                selected && "fee-selected text-white"
               }`}
             >
               <p className="text-center text-sm font-semibold">{v.title}</p>
@@ -78,7 +78,7 @@ export function FeeRateBar({ onChange }) {
       </div>
       {feeOptionIndex === FeeRateType.CUSTOM && (
         <input
-          className="w-full mt-3 bg-transparent py-2 px-2 rounded-lg  border border-[#dee2e682!important]  focus:outline-none"
+          className="w-full mt-3 bg-transparent py-2 px-2 rounded-lg  cs-border focus:outline-none"
           preset="amount"
           placeholder={"shibe/vB"}
           value={feeRateInputVal}

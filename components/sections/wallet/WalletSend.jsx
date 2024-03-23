@@ -195,7 +195,7 @@ export default function WalletSend({ setContentType }) {
           Address:
         </label>
         <input
-          className="w-full mt-1 rounded-lg py-2 px-2 bg-transparent border border-[white!important]  "
+          className="w-full mt-1 rounded-lg py-2 px-2 bg-transparent cs-border "
           type="text"
           placeholder="D1qdmy...0pqe5mzn"
           onChange={async (e) => {
@@ -221,7 +221,7 @@ export default function WalletSend({ setContentType }) {
 
         <div>
           <input
-            className="w-full mt-1 rounded-lg py-2 px-2 bg-transparent border border-[white!important]  "
+            className="w-full mt-1 rounded-lg py-2 px-2 bg-transparent cs-border "
             type="number"
             placeholder="0.00 (DOGE)"
             onChange={(e) => {

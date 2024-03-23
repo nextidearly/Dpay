@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
-import { Transition } from "@headlessui/react";
+import React, { useState, useRef, useEffect } from "react";
 import Bills from "../UI/Bills";
+import WaitingPayment from "../WaitingPayment";
 import FeeRecommend from "../UI/FeeRecommend";
+import { Transition } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 import { updateFeeRate } from "@/store/slices/inscribe";
-import WaitingPayment from "../WaitingPayment";
 import { feeAmount } from "@/configs/constants";
+import { Checkbox } from "pretty-checkbox-react";
 
 function TextInscriptions() {
   const dispatch = useDispatch();
@@ -108,32 +109,28 @@ function TextInscriptions() {
               as="div"
             >
               <div
-                className="dark:bg-slate-800 bg-gray-300 rounded-md p-3"
+                className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
                 style={{ width: `${wrapperWidth}px` }}
               >
-                <div className="flex gap-2 justify-center gap-4 my-3">
-                  <div className="flex gap-2 cursor">
-                    <input
-                      type="radio"
-                      name="text_type"
-                      id=""
-                      onChange={(e) => setTextType(1)}
-                      value={textType}
-                      checked={textType === 1 ? "checked" : ""}
-                    />
+                <div className="flex gap-4 justify-center my-3">
+                  <Checkbox
+                    animation="jelly"
+                    color="danger"
+                    icon={<i className="mdi mdi-check" />}
+                    onChange={(e) => setTextType(1)}
+                    checked={textType === 1 ? "checked" : ""}
+                  >
                     Single
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="radio"
-                      name="text_type"
-                      id=""
-                      onChange={(e) => setTextType(2)}
-                      value={textType}
-                      checked={textType === 2 ? "checked" : ""}
-                    />
+                  </Checkbox>
+                  <Checkbox
+                    animation="jelly"
+                    color="danger"
+                    icon={<i className="mdi mdi-check" />}
+                    onChange={(e) => setTextType(0)}
+                    checked={textType === 0 ? "checked" : ""}
+                  >
                     Bulk
-                  </div>
+                  </Checkbox>
                 </div>
 
                 <textarea
@@ -146,7 +143,7 @@ function TextInscriptions() {
                       ? "Add Text here"
                       : "Hello\nDoginal\ninscriptions"
                   }
-                  className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-200 focus:outline-none"
+                  className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
                   onChange={(e) => setInscriptionText(e.target.value)}
                   value={inscriptionText}
                 ></textarea>
@@ -154,7 +151,7 @@ function TextInscriptions() {
                 <input
                   type="text"
                   placeholder="Input Receive Address"
-                  className="w-full mt-3 mb-4 rounded-md p-2 dark:bg-gray-700 bg-gray-200 focus:outline-none"
+                  className="w-full mt-3 mb-4 rounded-md p-2 dark:bg-gray-700 bg-gray-100 focus:outline-none"
                   value={destAddress}
                   onChange={(e) => setDestAddress(e.target.value)}
                 />
@@ -183,7 +180,7 @@ function TextInscriptions() {
               as="div"
             >
               <div
-                className="dark:bg-slate-800 bg-gray-300 rounded-md p-3"
+                className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
                 style={{ width: `${wrapperWidth}px` }}
               >
                 <h1 className="text-center font-semibold text-lg">
@@ -192,11 +189,6 @@ function TextInscriptions() {
                 <p className="text-sm text-center mt-2">
                   Please check your order and confirm it.
                 </p>
-                <p className="text-[11px] text-gray-300  text-center">
-                  You are about to inscribe
-                  <span className="text-white font-semibol"></span>
-                  dpay(s)
-                </p>
                 <div className="flex flex-col mt-2 items-center rounded w-full max-h-[200px] bg-primary-dark/20 cursor-pointer  overflow-y-auto overflow-x-hidden scroll-smooth	transition ease-in-out duration-150">
                   <textarea
                     name=""
@@ -204,7 +196,7 @@ function TextInscriptions() {
                     cols="20"
                     rows="5"
                     placeholder=""
-                    className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-200 focus:outline-none"
+                    className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
                     onChange={(e) => setInscriptionText(e.target.value)}
                     value={inscriptionText}
                     disabled
@@ -213,16 +205,20 @@ function TextInscriptions() {
                   <input
                     type="text"
                     placeholder="Input Receive Address"
-                    className="w-full mt-3 mb-4 rounded-md p-2 dark:bg-gray-700 bg-gray-200 focus:outline-none"
+                    className="w-full mt-3 mb-4 rounded-md p-2 dark:bg-gray-700 bg-gray-100 focus:outline-none"
                     value={destAddress}
                     disabled
                   />
                   <div className="flex w-full justify-center mt-3 mb-4">
-                    <input
-                      type="checkbox"
-                      className=" rounded-md mr-2 dark:bg-gray-700 bg-gray-200 focus:outline-none"
-                    />
-                    <span>I confirm the accuracy of Input Data</span>
+                    <Checkbox
+                      animation="jelly"
+                      color="danger"
+                      icon={<i className="mdi mdi-check" />}
+                      // onChange={(e) => setTextType(2)}
+                      // checked={textType === 2 ? "checked" : ""}
+                    >
+                      I confirm the accuracy of Input Data
+                    </Checkbox>
                   </div>
                 </div>
               </div>
@@ -249,7 +245,10 @@ function TextInscriptions() {
               className="w-0 overflow-visible"
               as="div"
             >
-              <div style={{ width: `${wrapperWidth}px` }}>
+              <div
+                className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
+                style={{ width: `${wrapperWidth}px` }}
+              >
                 <FeeRecommend
                   feeOption={feeOption}
                   setFeeOption={setFeeOption}
@@ -282,10 +281,13 @@ function TextInscriptions() {
                   ? `-translate-x-96 opacity-0`
                   : `translate-x-96 opacity-0`
               }
-              className="bg-blue-200 w-0 overflow-visible"
+              className="bg-blue-100 w-0 overflow-visible"
               as="div"
             >
-              <div style={{ width: `${wrapperWidth}px` }}>
+              <div
+                className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
+                style={{ width: `${wrapperWidth}px` }}
+              >
                 <WaitingPayment totalFee={totalFee} networkFee={feeOption} />
               </div>
             </Transition>
@@ -313,7 +315,7 @@ function TextInscriptions() {
                   {step.status === "complete" ? (
                     <a
                       href={step.href}
-                      className="block w-2.5 h-2.5 bg-indigo-600 rounded-full hover:bg-indigo-900"
+                      className="block w-2.5 h-2.5 bg-red-600 rounded-full hover:bg-red-900"
                     >
                       <span className="sr-only"></span>
                     </a>
@@ -327,10 +329,10 @@ function TextInscriptions() {
                         className="absolute w-5 h-5 p-px flex"
                         aria-hidden="true"
                       >
-                        <span className="w-full h-full rounded-full bg-indigo-200" />
+                        <span className="w-full h-full rounded-full dark:bg-slate-800 bg-gray-200/80 " />
                       </span>
                       <span
-                        className="relative block w-2.5 h-2.5 bg-indigo-600 rounded-full"
+                        className="relative block w-2.5 h-2.5 bg-red-600 rounded-full"
                         aria-hidden="true"
                       />
                       <span className="sr-only"></span>

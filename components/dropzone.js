@@ -1,8 +1,9 @@
 // @flow
 import React, { useState, useEffect, useCallback } from "react";
-import { useDropzone, FileWithPath } from "react-dropzone";
+import { useDropzone } from "react-dropzone";
 import NFTStorageService from "@/services/nftStorage";
 import Spinner from "./spinner";
+import { LuUploadCloud } from "react-icons/lu";
 
 const AttachFileComponent = ({
   type,
@@ -58,19 +59,41 @@ const AttachFileComponent = ({
     }
   }, [type]);
 
-  return loading ? (
-    <div className="w-full min-h-[150px] flex justify-center items-center border  rounded-md">
-      <Spinner />
-    </div>
-  ) : (
+  return (
     <>
-      <label>{fileName ? fileName : "Upload file to inscribe"} </label>
+      <p className="text-lg font-semibold">{fileName ? fileName : "Upload"} </p>
+      <p className="mb-4">
+        Compress all your files in a single ZIP-file and upload it to get the
+        process started.
+      </p>
+
       <div
         {...getRootProps()}
-        className="w-full min-h-[150px] flex justify-center items-center border  rounded-md"
+        className="w-full min-h-[200px] flex justify-center items-center cs-border rounded-md my-2 dark:text-gray-300 text-gray-800 cursor-pointer"
       >
+        {loading ? (
+          <Spinner />
+        ) : (
+          <>
+            <div>
+              <LuUploadCloud className="text-center text-[50px] mx-auto" />
+
+              <p className="text-center font-semibold">
+                Drag and drop your Zip-file here, or click to select it.
+              </p>
+
+              <p className="text-[12px] text-center">
+                Supported file formats (compressed in a zip-file) in beta: .jpg,
+                .webp, .png
+              </p>
+
+              <p className="text-[12px] text-center">
+                Max. 25KB per file in beta.
+              </p>
+            </div>
+          </>
+        )}
         <input {...getInputProps()} />
-        <p className="p-3">{`Attach ${type}`}</p>
       </div>
     </>
   );

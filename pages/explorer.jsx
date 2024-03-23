@@ -125,20 +125,20 @@ const Explorer = () => {
                     key={index}
                   >
                     <div className="flex gap-2 px-2">
-                      <div className="rounded-full w-[30px] h-[30px] dark:bg-slate-800 bg-gray-200" />
+                      <div className="rounded-full w-[30px] h-[30px] dark:bg-slate-800 bg-gray-200/80 " />
                       <p className="text-orange-500 font-semibold"></p>
                     </div>
                     <div className="px-2">
-                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200/80 animate-pulse w-12 rounded-md"></p>
                     </div>
                     <div>
-                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200/80 animate-pulse w-12 rounded-md"></p>
                     </div>
                     <div className="hidden sm:inline-block px-2">
-                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200/80 animate-pulse w-12 rounded-md"></p>
                     </div>
                     <div className="px-2 hidden sm:inline-block">
-                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200/80 animate-pulse w-12 rounded-md"></p>
                     </div>
                   </div>
                 );

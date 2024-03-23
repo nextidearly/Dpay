@@ -108,18 +108,19 @@ const Balances = () => {
       fetchbalance(e.target.value);
     }
   };
-
+  
   const renderIterms = (type) => {
     if (type === "dorginals") {
       return (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 w-full">
             {inscriptions.map((iterm) => {
+              console.log(iterm)
               return (
                 <div className="in-card" key={iterm.inscriptionNumber}>
                   <div className="in-content">
                     <iframe
-                      src={iterm.content}
+                      src={`https://wonky-ord.dogeord.io/preview/${iterm.inscriptionId}`}
                       frameBorder="0"
                       width="100%"
                       height="100%"
