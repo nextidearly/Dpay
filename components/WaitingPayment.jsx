@@ -1,43 +1,22 @@
 import React, { useState, useContext } from "react";
 import QRCode from "react-qr-code";
-import Countdown from "react-countdown";
+import toast from "react-hot-toast";
 import { FaCopy, FaCheck } from "react-icons/fa";
-import { toast } from "react-toastify";
-import { WalletContext } from "@/context/wallet";
-import { InscribeContext } from "@/context/inscribe";
-import { useEffect } from "react";
-import { feeAmount } from "@/configs/constants";
 import { Checkbox } from "pretty-checkbox-react";
+import { Result } from "postcss";
+import { WalletContext } from "@/context/wallet";
+import { ImSpinner10 } from "react-icons/im";
 
-const WaitingPayment = ({ totalFee, networkFee }) => {
-  const fundingAddress = "DAMH5oGgg2PPR2D8a5WoKB9RQmjynbmPUR";
-  const walletContext = useContext(WalletContext);
-  const inscribeContext = useContext(InscribeContext);
-  const [isLoading, setLoad] = useState(true);
+const WaitingPayment = ({ networkFee, order }) => {
+  const wallet = useContext(WalletContext);
+
+  const fundingAddress = order?.fundingAddress;
   const [copied, setCopied] = useState({
     address: false,
     amount: false,
   });
-
   const [paymentType, setPaymentType] = useState("wallet");
-  const [loading, setLoading] = useState(false);
-
-  const renderer = ({ hours, minutes, seconds, completed }) => {
-    if (completed) {
-      clearInterval(inscribeContext.intervalId);
-      if (!inscribeContext.minted) {
-        inscribeContext.setMintFailed(true);
-        localStorage.setItem("mintFailed", "true");
-      }
-      return <></>;
-    } else {
-      return (
-        <span>
-          {hours}:{minutes}:{seconds}
-        </span>
-      );
-    }
-  };
+  const [loading, setLoading] = useState();
 
   const copyToClipboard = (value, type) => {
     navigator.clipboard.writeText(value);
@@ -47,26 +26,53 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
     });
   };
 
-  const handlePay = async () => {
-    if (walletContext.account) {
-      if (typeof window === "undefined") return;
-      const wallet = window.unisat;
-      try {
-        let txid = await wallet.sendBitcoin(fundingAddress, amount);
-        inscribeContext.setPaid(true);
-        localStorage.setItem("paid", true);
-      } catch (e) {
-        // inscribeContext.setPaid(false)
-        // localStorage.setItem('paid', '')
-        toast(e.message);
-        return;
-      }
-    } else {
-      inscribeContext.setPaid(false);
-      localStorage.setItem("paid", "");
-      toast("Please connect Unisat wallet");
+  const pushBitcoinTx = async (rawTxInfo) => {
+    if (!rawTxInfo) {
       return;
     }
+
+    const decodedPsbt = await wallet.decodePsbt(rawTxInfo.psbtHex);
+
+    if (decodedPsbt.warning) {
+      toast.error("RawTx decoding is failed");
+      return;
+    }
+
+    try {
+      const res = await wallet.pushTx(rawTxInfo.rawtx);
+      if (res.status == API_STATUS.FAILED) {
+        toast.error(res.message);
+      } else {
+        console.log(Result);
+        toast.success(`Sent ${inputAmount} successfully.`);
+      }
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+    }
+  };
+
+  const handlePay = async () => {
+    setLoading(true);
+    wallet
+      .createBitcoinTx(
+        {
+          address: fundingAddress,
+          domain: "",
+          undefined,
+        },
+        order?.costsPerFileInscriptionJob?.totalFee,
+        networkFee,
+        false
+      )
+      .then((data) => {
+        console.log(data)
+        pushBitcoinTx(data);
+      })
+      .catch((e) => {
+        toast.error(`Something went wrong`);
+        setLoading(false);
+      });
   };
 
   const handlePaymentType = (type) => {
@@ -80,13 +86,10 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
           <>
             <div className="pb-3 w-full">
               <h4 className="text-2xl text-center text-gray-800 dark:text-gray-100">
-                Waiting on Payment in{" "}
-                <Countdown
-                  date={Number(inscribeContext?.pendingOrder)}
-                  renderer={renderer}
-                />
+                Waiting on Payment
               </h4>
             </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 w-full mb-3 bg-gray-200 dark:bg-slate-600">
               <div className="p-1 w-full">
                 <div
@@ -125,7 +128,7 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                     onChange={() => handlePaymentType("wallet")}
                     checked={paymentType === "wallet" ? "checked" : ""}
                   >
-                    Pay with Wallet
+                    Pay with Dpay Wallet
                   </Checkbox>
                 </div>
               </div>
@@ -134,7 +137,9 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
             <div className="flex flex-col items-center">
               <div className="flex gap-1 text-gray-700 dark:text-gray-200">
                 <div>Service Fee : </div>
-                <div>{feeAmount}</div>
+                <div>
+                  {order?.costsPerFileInscriptionJob?.totalServiceFee / 10 ** 8}
+                </div>
               </div>
 
               <div className="flex gap-1 text-gray-700 dark:text-gray-200">
@@ -146,23 +151,38 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                 <div>Total Amount : </div>
                 <div className="flex items-center">
                   <span className="text-lg ml-1">
-                    {Number(totalFee / 100000000).toFixed(4)}
+                    {Number(
+                      order?.costsPerFileInscriptionJob?.totalFee / 100000000
+                    ).toFixed(2)}
                     DOGE
                   </span>{" "}
-                  ({totalFee}) Shibes
+                  &nbsp; ({order?.costsPerFileInscriptionJob?.totalFee}) Shibes
                   {copied.amount ? (
                     <FaCheck
                       className="ml-1"
-                      onClick={() => copyToClipboard(totalFee, "amount")}
+                      onClick={() =>
+                        copyToClipboard(
+                          order?.costsPerFileInscriptionJob?.totalFee /
+                            100000000,
+                          "amount"
+                        )
+                      }
                     />
                   ) : (
                     <FaCopy
                       className="ml-1"
-                      onClick={() => copyToClipboard(totalFee, "amount")}
+                      onClick={() =>
+                        copyToClipboard(
+                          order?.costsPerFileInscriptionJob?.totalFee /
+                            100000000,
+                          "amount"
+                        )
+                      }
                     />
                   )}
                 </div>
               </div>
+
               {paymentType === "chain" ? (
                 <div>
                   <div className="flex flex-col items-center justify-center">
@@ -246,21 +266,16 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
                     </a>
                   </div>
                   <div className=" w-full mt-4">
-                    {walletContext.account &&
-                      walletContext.type !== "Unisat" && (
-                        <button className={styles.inscribeButton}>
-                          Pay with wallet
-                        </button>
+                    <button
+                      className="mt-2 w-full main_btn py-2 rounded-md flex justify-center items-center"
+                      onClick={() => handlePay()}
+                    >
+                      {loading ? (
+                        <ImSpinner10 className="text-lg animate-spin"></ImSpinner10>
+                      ) : (
+                        "Pay with Dpay wallet"
                       )}
-                    {walletContext.account &&
-                      walletContext.type === "Unisat" && (
-                        <button
-                          className={styles.inscribeButton}
-                          onClick={() => handlePay()}
-                        >
-                          Pay with wallet
-                        </button>
-                      )}
+                    </button>
                   </div>
                 </div>
               )}
@@ -268,28 +283,22 @@ const WaitingPayment = ({ totalFee, networkFee }) => {
           </>
         ) : (
           <div className="animate-pulse w-full flex flex-col items-center">
-            <div className="w-100 h-8 bg-gray-300 animate-pulse"></div>
+            <div className="w-100 h-8 dark:bg-slate-700 bg-gray-200 animate-pulse"></div>
             <div className="flex flex-col items-center gap-3 mt-3">
-              <div className="w-60 h-6 bg-gray-300 animate-pulse"></div>
+              <div className="w-60 h-6 dark:bg-slate-700 bg-gray-200 animate-pulse"></div>
               <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 w-100">
-                <div className="h-12 w-full bg-gray-300 animate-pulse mt-2"></div>
-                <div className="h-12 w-full bg-gray-300 animate-pulse mt-2"></div>
+                <div className="h-12 w-full dark:bg-slate-700 bg-gray-200 animate-pulse mt-2"></div>
+                <div className="h-12 w-full dark:bg-slate-700 bg-gray-200 animate-pulse mt-2"></div>
               </div>
-              <div className="w-[165px] h-[165px] bg-gray-300"></div>
+              <div className="w-[165px] h-[165px] dark:bg-slate-700 bg-gray-200"></div>
             </div>
             <div className="flex flex-col items-center w-full">
-              <div className="w-80 h-14 bg-gray-300 animate-pulse mt-3"></div>
-              <div className="w-20 h-6 bg-gray-300 animate-pulse mt-3"></div>
+              <div className="w-80 h-14 dark:bg-slate-700 bg-gray-200 animate-pulse mt-3"></div>
+              <div className="w-20 h-6 dark:bg-slate-700 bg-gray-200 animate-pulse mt-3"></div>
             </div>
           </div>
         )}
       </div>
-      {/* <div className='inscribe h-[500px] mb-12'>
-        <div className='pb-4 w-full'>
-          <h4 className='text-2xl  text-center'>Waiting on Payment in </h4>
-        </div>
-        {}
-      </div> */}
     </div>
   );
 };

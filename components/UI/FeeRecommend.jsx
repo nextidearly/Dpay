@@ -14,11 +14,11 @@ export default function FeeRecommend({ setFeeOption }) {
 
   const [feeOptions, setFeeOptions] = useState([]);
 
-  // useEffect(() => {
-  //   wallet.getFeeSummary().then((v) => {
-  //     setFeeOptions([...v.list, { title: "Custom", feeRate: 0 }]);
-  //   });
-  // }, []);
+  useEffect(() => {
+    wallet.getFeeSummary().then((v) => {
+      setFeeOptions([...v.list, { title: "Custom", feeRate: 0 }]);
+    });
+  }, []);
 
   const [feeOptionIndex, setFeeOptionIndex] = useState(FeeRateType.AVG);
   const [feeRateInputVal, setFeeRateInputVal] = useState("");

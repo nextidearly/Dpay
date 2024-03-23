@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo } from "react";
+import WAValidator from "multicoin-address-validator";
 import { BsArrowLeft } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -7,7 +8,6 @@ import { useState } from "react";
 import { FeeRateBar } from "./WalletFeeRate";
 import { amountToSatoshis, isValidAddress } from "@/utils";
 import { bitcoinTx, updateBitcoinTx } from "@/store/slices/wallet";
-import WAValidator from "multicoin-address-validator";
 import { AiFillCheckCircle } from "react-icons/ai";
 import { ImSpinner10 } from "react-icons/im";
 import { useWallet } from "@/store/hooks";

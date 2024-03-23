@@ -1,34 +1,54 @@
 import React from "react";
 import { AiFillWarning } from "react-icons/ai";
-import { useInscribe, useWallet } from "@/store/hooks";
+import { useWallet } from "@/store/hooks";
 
-export default function Bills({
-  textData,
-  feeAmount = 3000,
-  netWorkFee = 100000000,
-  setTotalFee,
-}) {
-  const { selectedBlock } = useInscribe();
+export default function Bills({ networkFee, pricing }) {
   const { price } = useWallet();
-
-  const length = textData.split("\n").length;
-  const inscribeFee = length * 10000;
-  const serviceFee = Number((length * (510000 + 10 ** 8 / price)).toFixed(0));
-  const sizeFee = length * 19;
-  const totalFee = Number((inscribeFee + serviceFee + sizeFee).toFixed(0));
-  setTotalFee(totalFee);
 
   return (
     <>
       <hr className="w-[80%] mt-3 mx-auto" />
       <div className="pt-2">
         <div className="grid grid-cols-2 font-light py-1 text-sm">
-          <p className="text-right pr-2 ">Shibes In Inscription:</p>
+          <p className="text-right pr-2 ">
+            Network fee ({pricing?.prices?.shibescriptionCostsBySize.length}):
+          </p>
           <p className="text-left pl-2 ">
-            {selectedBlock.length} * 10000 shibes
+            {pricing?.prices?.shibescriptionCostsBySize.length} * {networkFee} ={" "}
+            {(
+              pricing?.prices?.shibescriptionCostsBySize.length * networkFee
+            ).toFixed(0)}{" "}
+            shibes
             <span className="text-[11px] text-gray-300 ">
               &nbsp; ~$&nbsp;
-              {((inscribeFee / 10 ** 8) * price).toFixed(2)}
+              {(
+                ((pricing?.prices?.shibescriptionCostsBySize.length *
+                  networkFee) /
+                  10 ** 8) *
+                price
+              ).toFixed(2)}
+            </span>
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 font-light py-1 text-sm">
+          <p className="text-right pr-2 ">
+            shibes in inscription (
+            {pricing?.prices?.shibescriptionCostsBySize.length}):
+          </p>
+          <p className="text-left pl-2 ">
+            {pricing?.prices?.shibescriptionCostsBySize.length} * {75000} ={" "}
+            {(
+              pricing?.prices?.shibescriptionCostsBySize.length * 75000
+            ).toFixed(0)}{" "}
+            shibes
+            <span className="text-[11px] text-gray-300 ">
+              &nbsp; ~$&nbsp;
+              {(
+                ((pricing?.prices?.shibescriptionCostsBySize.length * 75000) /
+                  10 ** 8) *
+                price
+              ).toFixed(2)}
             </span>
           </p>
         </div>
@@ -36,19 +56,12 @@ export default function Bills({
         <div className="grid grid-cols-2 font-light py-1  text-sm">
           <p className="text-right pr-2">Service Fee:</p>
           <p className="text-left pl-2">
-            {serviceFee} shibes
+            {pricing?.prices?.totalServiceFee} shibes
             <span className=" text-[11px] text-gray-300 ">
-              &nbsp;~$ {((serviceFee / 10 ** 8) * price).toFixed(2)}
-            </span>
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 font-light py-1  text-sm">
-          <p className="text-right pr-2">Size Fee:</p>
-          <p className="text-left pl-2">
-            {sizeFee} shibes
-            <span className=" text-[11px] text-gray-300 ">
-              &nbsp;~$ {((sizeFee / 10 ** 8) * price).toFixed(2)}
+              &nbsp;~${" "}
+              {((pricing?.prices?.totalServiceFee / 10 ** 8) * price).toFixed(
+                2
+              )}
             </span>
           </p>
         </div>
@@ -56,9 +69,11 @@ export default function Bills({
         <div className="grid grid-cols-2 font-light py-1  text-sm">
           <p className="text-right pr-2">=</p>
           <p className="text-left pl-2">
-            <span className="line-through"> {totalFee}</span> shibes
+            <span className="line-through"> {pricing?.prices?.totalFee}</span>{" "}
+            shibes
             <span className=" text-[11px] text-gray-300 ">
-              &nbsp;~$ {((totalFee / 10 ** 8) * price).toFixed(2)}
+              &nbsp;~${" "}
+              {((pricing?.prices?.totalFee / 10 ** 8) * price).toFixed(2)}
             </span>
           </p>
         </div>
@@ -66,10 +81,10 @@ export default function Bills({
         <div className="grid grid-cols-2 font-light py-1 mt-3  text-sm">
           <p className="text-right pr-2">Total Fee:</p>
           <p className="text-left pl-2">
-            {totalFee - (totalFee % 1000)} shibes
+            {pricing?.prices?.totalFee / 10 ** 8} doge
             <span className=" text-[11px] text-gray-300 ">
               &nbsp;~$
-              {(((totalFee - (totalFee % 1000)) / 10 ** 8) * price).toFixed(2)}
+              {((pricing?.prices?.totalFee / 10 ** 8) * price).toFixed(2)}
             </span>
           </p>
         </div>

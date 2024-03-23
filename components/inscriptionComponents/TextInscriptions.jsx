@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import Bills from "../UI/Bills";
 import WaitingPayment from "../WaitingPayment";
 import FeeRecommend from "../UI/FeeRecommend";
+import toast from "react-hot-toast";
 import { Transition } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 import { updateFeeRate } from "@/store/slices/inscribe";
-import { feeAmount } from "@/configs/constants";
 import { Checkbox } from "pretty-checkbox-react";
+import { MdOutlineCancel } from "react-icons/md";
 
 function TextInscriptions() {
   const dispatch = useDispatch();
@@ -21,9 +22,15 @@ function TextInscriptions() {
   ]);
   const [inscriptionText, setInscriptionText] = useState("");
   const [destAddress, setDestAddress] = useState("");
+
   const [textType, setTextType] = useState(1);
   const [feeOption, setFeeOption] = useState("1000000");
-  const [totalFee, setTotalFee] = useState(2);
+  const [accuracyCheck, setAccuracyCheck] = useState(false);
+
+  const [inscriptionData, setInscriptionData] = useState([]);
+  const [inscriptionPricing, setInscriptionPricing] = useState();
+  const [order, setOrder] = useState();
+
   const handleChangeFeeOption = (e) => {
     dispatch(updateFeeRate(e));
   };
@@ -66,6 +73,65 @@ function TextInscriptions() {
 
   const wrapper = useRef(null);
   const [wrapperWidth, setWrapperWidth] = useState(1);
+
+  const handleCreatePrice = async () => {
+    const data =
+      textType === 0
+        ? inscriptionText.split("\n").map((text) => ({
+            text,
+          }))
+        : [{ text: inscriptionText }];
+
+    setInscriptionData(data);
+
+    try {
+      const res = await fetch(`/drc20.explorer/inscribe/job/text/pricing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+        body: JSON.stringify({
+          inscriptionContent: data,
+          isPriority: true,
+        }),
+      });
+
+      const pricing = await res.json();
+      setInscriptionPricing(pricing);
+    } catch (error) {
+      setCurrentStep(0);
+      toast.error(
+        "Something went woring when creating pricsing. please try again."
+      );
+    }
+  };
+
+  const handleCreateOrder = async () => {
+    const data = {
+      receiverConfigs: [
+        {
+          amount: 1,
+          address: destAddress,
+        },
+      ],
+      inscriptionContent: inscriptionData,
+      isPriority: false,
+    };
+
+    try {
+      const res = await fetch(`/drc20.explorer/inscribe/job/text`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+        body: JSON.stringify(data),
+      });
+
+      const order = await res.json();
+      setOrder(order);
+    } catch (error) {
+      setCurrentStep(0);
+      toast.error(
+        "Something went woring when creating pricsing. please try again."
+      );
+    }
+  };
 
   useEffect(() => {
     function handleResize() {
@@ -189,18 +255,38 @@ function TextInscriptions() {
                 <p className="text-sm text-center mt-2">
                   Please check your order and confirm it.
                 </p>
-                <div className="flex flex-col mt-2 items-center rounded w-full max-h-[200px] bg-primary-dark/20 cursor-pointer  overflow-y-auto overflow-x-hidden scroll-smooth	transition ease-in-out duration-150">
-                  <textarea
-                    name=""
-                    id=""
-                    cols="20"
-                    rows="5"
-                    placeholder=""
-                    className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
-                    onChange={(e) => setInscriptionText(e.target.value)}
-                    value={inscriptionText}
-                    disabled
-                  ></textarea>
+                <div className="flex flex-col mt-2 items-center rounded w-full bg-primary-dark/20 overflow-y-auto overflow-x-hidden scroll-smooth	transition ease-in-out duration-150">
+                  <div className="dark:bg-gray-700 bg-gray-100 rounded-md min-h-[100px] max-h-[200px] p-2 overflow-y-auto w-full">
+                    {inscriptionData.map((data, key) => {
+                      return (
+                        <div
+                          key={key}
+                          className="flex p-2 dark:bg-gray-600 bg-gray-200 justify-between rounded-md w-full mb-2"
+                        >
+                          <div className="">
+                            {data.text.length > 8
+                              ? data.text.slice(0, 8) + "..."
+                              : data.text}
+                          </div>
+                          <div className="flex itmes-center gap-2">
+                            <p className="text-sm font-semibold">
+                              {data.text.length} B
+                            </p>
+                            <MdOutlineCancel
+                              className="text-lg cursor-pointer"
+                              onClick={() => {
+                                setInscriptionData((prevData) =>
+                                  prevData.filter(
+                                    (item) => item.text !== data.text
+                                  )
+                                );
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
                   <input
                     type="text"
@@ -214,8 +300,8 @@ function TextInscriptions() {
                       animation="jelly"
                       color="danger"
                       icon={<i className="mdi mdi-check" />}
-                      // onChange={(e) => setTextType(2)}
-                      // checked={textType === 2 ? "checked" : ""}
+                      onChange={(e) => setAccuracyCheck(!accuracyCheck)}
+                      checked={accuracyCheck ? "checked" : ""}
                     >
                       I confirm the accuracy of Input Data
                     </Checkbox>
@@ -254,12 +340,8 @@ function TextInscriptions() {
                   setFeeOption={setFeeOption}
                   onChange={handleChangeFeeOption}
                 />
-                <Bills
-                  textData={inscriptionText}
-                  feeAmount={feeAmount}
-                  networkFee={feeOption}
-                  setTotalFee={setTotalFee}
-                />
+
+                <Bills networkFee={feeOption} pricing={inscriptionPricing} />
               </div>
             </Transition>
 
@@ -288,7 +370,7 @@ function TextInscriptions() {
                 className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
                 style={{ width: `${wrapperWidth}px` }}
               >
-                <WaitingPayment totalFee={totalFee} networkFee={feeOption} />
+                <WaitingPayment networkFee={feeOption} order={order} />
               </div>
             </Transition>
           </div>
@@ -350,8 +432,19 @@ function TextInscriptions() {
             </ol>
             <button
               className="main_btn rounded-md p-2 w-full float-right"
-              disabled={currentStep === 3}
-              onClick={() => nextStep()}
+              disabled={
+                currentStep === 3 ||
+                (currentStep === 0 && (!inscriptionText || !destAddress)) ||
+                (currentStep === 1 && !accuracyCheck)
+              }
+              onClick={() => {
+                if (currentStep === 0) {
+                  handleCreatePrice();
+                } else if (currentStep === 1) {
+                  handleCreateOrder();
+                }
+                nextStep();
+              }}
             >
               Next
             </button>

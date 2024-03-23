@@ -45,7 +45,7 @@ const nextConfig = {
         destination: "https://unspent.dogeord.io/api/v1/:slug*",
       },
       {
-        source: "/drc20.explorer/:slug",
+        source: "/drc20.explorer/:slug*",
         destination: "https://d20-api2.dogeord.io/:slug*",
       },
       {

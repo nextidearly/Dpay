@@ -201,13 +201,13 @@ const Inscribe = (props) => {
           address: exist.address,
         };
 
-        inscribeDPAYContext.inscribeOrder({
-          files: files,
-          feerate: serviceFee.hourFee,
-          receiveAddress: receiveAddress,
-          orderId: newOrderId,
-          apiBase: apiBase,
-        });
+        // inscribeDPAYContext.inscribeOrder({
+        //   files: files,
+        //   feerate: serviceFee.hourFee,
+        //   receiveAddress: receiveAddress,
+        //   orderId: newOrderId,
+        //   apiBase: apiBase,
+        // });
       }
     });
   };
