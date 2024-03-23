@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import { FaCopy } from "react-icons/fa6";
 import { useSelector } from "react-redux";
@@ -13,6 +13,14 @@ export default function WalletSecret({ setContentType }) {
   );
   const [copied, setCopied] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const priv = useMemo(() => accountInfo?.vault, [accountInfo]);
+  const isSeedKey = useMemo(
+    () => (accountInfo?.keyrings?.mnemonic ? true : false),
+    [accountInfo]
+  );
+
+  console.log(isSeedKey, "isSeedKey");
 
   const copiedf = () => {
     setCopied(true);
@@ -31,16 +39,18 @@ export default function WalletSecret({ setContentType }) {
           <BsArrowLeft className="text-xl" />
         </button>
         <label htmlFor="" className="w-full mt-2">
-          Your mnemonic phrase:
+          Your {isSeedKey ? "mnemonic phrase" : "Private Key"}:
         </label>
         <div
           className="p-3 rounded-lg dark:bg-slate-400/20  mt-1 relative cursor-pointer hover:bg-gray-300/30  duration-300"
           onClick={() => {
-            copyToClipboard(accountInfo?.keyrings?.mnemonic);
+            copyToClipboard(isSeedKey ? accountInfo?.keyrings?.mnemonic : priv);
             copiedf();
           }}
         >
-          <p>{accountInfo?.keyrings?.mnemonic} </p>
+          <p className="break-words" style={{ overflowWrap: "anywhere" }}>
+            {isSeedKey ? accountInfo?.keyrings?.mnemonic : priv}{" "}
+          </p>
           {copied ? (
             <ImCheckmark className=" text-green-400 absolute bottom-3 right-3 cursor-pointer" />
           ) : (

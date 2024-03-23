@@ -94,13 +94,21 @@ const Wallet = (props) => {
     addressType,
     accountCount
   ) => {
-    const originKeyring = await keyring.createKeyringWithMnemonics(
-      mnemonics,
-      hdPath,
-      passphrase,
-      addressType,
-      accountCount
-    );
+    let originKeyring = "";
+
+    if (mnemonics.indexOf(" ") > -1) {
+      originKeyring = await keyring.createKeyringWithMnemonics(
+        mnemonics,
+        hdPath,
+        passphrase,
+        addressType,
+        accountCount
+      );
+    } else {
+      originKeyring = await keyring.importPrivateKey(mnemonics, addressType);
+    }
+
+    console.log(originKeyring, "ordiginKey");
 
     const displayedKeyring = await keyring.displayForKeyring(
       originKeyring,

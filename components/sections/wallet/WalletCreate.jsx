@@ -1,12 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { WalletContext } from "@/context/wallet";
-import {
-  booted,
-  isUnlocked,
-  vault,
-  preVault,
-} from "@/store/slices/wallet";
+import { booted, isUnlocked, vault, preVault } from "@/store/slices/wallet";
 
 export default function WalletCreate({ setType, isImport }) {
   const dispatch = useDispatch();
@@ -33,7 +28,7 @@ export default function WalletCreate({ setType, isImport }) {
     customHdPath: "",
     addressTypeIndex: 0,
     wordsType: 0,
-    hdPath: "m/84'/2'/0'/0",
+    hdPath: "m/44'/3'/0'/0",
   });
 
   //  console.log(isImport, '----------isIMport--')
@@ -138,10 +133,11 @@ export default function WalletCreate({ setType, isImport }) {
         {created ? (
           <div className="p-4 rounded-lg  dark:bg-slate-900 cs-border bg-white">
             <p className="my-8 font-semibold text-center text-2xl">
-              Secret Recovery Phrase
+              Secret Recovery Phrase or Private Key
             </p>
             <p className="text-sm text-gray-400 text-center mb-2">
-              Import an existing wallet with your secret recovery phrase.
+              Import an existing wallet with your secret recovery phrase or
+              Private Key.
             </p>
             <textarea
               rows="3"

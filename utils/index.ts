@@ -199,7 +199,6 @@ export function toPsbtNetwork() {
     scriptHash: 22,
     wif: 158,
   };
-
   return network;
 }
 
@@ -211,6 +210,8 @@ export function publicKeyToAddress(publicKey, type) {
     pubkey: pubkey,
     network: network,
   });
+
+
   return address || "";
 
   // if (type === 0) {

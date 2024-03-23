@@ -1,20 +1,17 @@
 // fork from https://github.com/MetaMask/KeyringController/blob/master/index.js
-const bip39 = require("bip39");
-const bitcoin = require("bitcoinjs-lib");
+import { keyring } from "@unisat/wallet-sdk";
+import * as bip39 from "bip39";
+
 const encryptor = require("browser-passworder");
-const { EventEmitter } = require("events");
+const { ADDRESS_TYPES, KEYRING_TYPE } = require("@/shared/constant");
 const log = require("loglevel");
 
-const { ADDRESS_TYPES, KEYRING_TYPE } = require("@/shared/constant");
-const { AddressType } = require("@/shared/types");
+const { EventEmitter } = require("events");
 const { ObservableStore } = require("@metamask/obs-store");
-const { HdKeyring } = require("@unisat/bitcoin-hd-keyring");
-const { SimpleKeyring } = require("@unisat/bitcoin-simple-keyring");
+const { SimpleKeyring, HdKeyring } = keyring;
+const { DisplayKeyring } = require("./display");
 
 const { publicKeyToAddress } = require("./../utils");
-
-const preference = require("./preference");
-const { DisplayKeyring } = require("./display");
 
 const KEYRING_SDK_TYPES = {
   SimpleKeyring,
@@ -355,7 +352,7 @@ class KeyringService extends EventEmitter {
     const simpleKeyring = new HdKeyring({
       mnemonic: EXPrive,
       activeIndexes: [0],
-      hdPath: "m/84'/2'/0'/0",
+      hdPath: "m/44'/3'/0'/0",
       passphrase: "",
     });
     // console.log(simpleKeyring);
@@ -529,7 +526,8 @@ class KeyringService extends EventEmitter {
     return {
       type: keyring.type,
       accounts: all_accounts,
-      keyring: new DisplayKeyring(keyring),
+      keyring: keyring,
+      // keyring: new DisplayKeyring(keyring),
       addressType,
       index,
     };

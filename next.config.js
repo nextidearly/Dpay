@@ -52,6 +52,10 @@ const nextConfig = {
         source: "/drc20/:slug*",
         destination: "https://www.drc20.xyz/:slug*",
       },
+      {
+        source: "/coinranking/:slug*",
+        destination: "https://coinranking.com/:slug*",
+      },
     ];
   },
 };

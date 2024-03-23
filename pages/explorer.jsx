@@ -5,9 +5,10 @@ import { useSelector } from "react-redux";
 import ReactPaginate from "react-paginate";
 import TokenAvatar from "../components/UI/TokenAvatar";
 import { CiSearch } from "react-icons/ci";
+import NumberFormat from "../components/UI/NumberFormatter";
 
 const Explorer = () => {
-  const [data, setData] = useState({ list: [], total: 0, DOGEprice: 0.081529 });
+  const [data, setData] = useState({ list: [], total: 0 });
   const [searchKey, setSearchKey] = useState("");
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
@@ -23,10 +24,10 @@ const Explorer = () => {
   const searchByTicker = async (ticker) => {
     setFetchingData(true);
     const res = await fetch(
-      `/drc20/api/get_list?offset=${0}&orderDirection=${sort}&orderBy=${orderBy}&search=${ticker}`
+      `/coinranking/api/v2/coins?offset=${0}&orderBy=marketCap&limit=${100}&orderDirection=desc&referenceCurrencyUuid=yhjMzLPhuIDl&timePeriod=24h&search=${ticker}&tags[]=drc-20`
     );
     const resJson = await res.json();
-    setData(resJson);
+    setData({ list: resJson.data.coins, total: resJson.data.stats.totalCoins });
     setFetchingData(false);
   };
 
@@ -45,12 +46,12 @@ const Explorer = () => {
   const fetchData = async () => {
     setFetchingData(true);
     const res = await fetch(
-      `/drc20/api/get_list?offset=${
-        offset * 20
-      }&orderDirection=${sort}&orderBy=${orderBy}&search=${search}`
+      `/coinranking/api/v2/coins?offset=${
+        offset * 100
+      }&orderBy=marketCap&limit=${100}&orderDirection=desc&referenceCurrencyUuid=yhjMzLPhuIDl&timePeriod=24h&search=&tags[]=drc-20`
     );
     const resJson = await res.json();
-    setData(resJson);
+    setData({ list: resJson.data.coins, total: resJson.data.stats.totalCoins });
     setFetchingData(false);
   };
 
@@ -61,8 +62,8 @@ const Explorer = () => {
   return (
     <Layout>
       <Head>
-        <title>Dpay - Explorer</title>
-        <meta name="description" content="Dpay - Dpay Explorer" />
+        <title>DPAY - Explorer</title>
+        <meta name="description" content="DPAY - DPAY Explorer" />
       </Head>
 
       <div className="h-full flex flex-col items-center justify-center mt-16 container-fluid mx-auto max-w-[1600px]">
@@ -96,7 +97,7 @@ const Explorer = () => {
           </div>
         </div>
 
-        <div className="rounded-md mt-1 grid sm:grid-cols-8 grid-cols-4 duration-100 items-center w-full">
+        <div className="rounded-md mt-1 grid sm:grid-cols-5 grid-cols-4 duration-100 items-center w-full">
           <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 flex gap-2 rounded-l-md">
             Ticker
           </div>
@@ -104,22 +105,13 @@ const Explorer = () => {
             Price{" "}
           </div>
           <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 hidden sm:inline-block">
-            floor
-          </div>
-          <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 ">
-            Change
+            24h%
           </div>
           <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 hidden sm:inline-block">
-            Volume
+            MarketCap
           </div>
           <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 hidden sm:inline-block">
-            Sales
-          </div>
-          <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 rounded-r-md sm:rounded-r-none">
-            Holers
-          </div>
-          <div className="hover:bg-gray-200 dark:hover:bg-slate-800 dark:bg-slate-800/50 bg-gray-100 cursor-pointer p-2 rounded-r-md hidden sm:inline-block">
-            Minted
+            Volume 24h
           </div>
         </div>
 
@@ -129,33 +121,24 @@ const Explorer = () => {
               {Array.from({ length: 20 }, (_, index) => {
                 return (
                   <div
-                    className="py-2 dark:bg-slate-800/50 bg-gray-100 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-md mt-1 grid sm:grid-cols-8 grid-cols-4 duration-100 cursor-pointer items-center"
+                    className="py-2 dark:bg-slate-800/50 bg-gray-100 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-md mt-1 grid sm:grid-cols-5 grid-cols-4 duration-100 cursor-pointer items-center"
                     key={index}
                   >
                     <div className="flex gap-2 px-2">
-                      <div className="rounded-full w-[30px] h-[30px] bg-slate-800" />
+                      <div className="rounded-full w-[30px] h-[30px] dark:bg-slate-800 bg-gray-200" />
                       <p className="text-orange-500 font-semibold"></p>
                     </div>
                     <div className="px-2">
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
-                    </div>
-                    <div className="hidden sm:inline-block px-2">
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
                     </div>
                     <div>
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
                     </div>
                     <div className="hidden sm:inline-block px-2">
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
                     </div>
                     <div className="px-2 hidden sm:inline-block">
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
-                    </div>
-                    <div>
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
-                    </div>
-                    <div>
-                      <p className="h-4 bg-slate-800 animate-pulse w-12 rounded-md"></p>
+                      <p className="h-4 dark:bg-slate-800 bg-gray-200 animate-pulse w-12 rounded-md"></p>
                     </div>
                   </div>
                 );
@@ -166,56 +149,39 @@ const Explorer = () => {
               {data.list.map((token, key) => {
                 return (
                   <div
-                    className="py-2 dark:bg-slate-800/50 bg-gray-100 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-md mt-1 grid sm:grid-cols-8 grid-cols-4 duration-100 cursor-pointer items-center"
+                    className="py-2 dark:bg-slate-800/50 bg-gray-100 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-md mt-1 grid sm:grid-cols-5 grid-cols-4 duration-100 cursor-pointer items-center"
                     key={key + offset}
                   >
                     <div className="flex gap-2 px-2">
                       <TokenAvatar
-                        url={`https://drc-20-icons.s3.eu-central-1.amazonaws.com/${token.tick}.png`}
-                        tick={token.tick.slice(0, 1)}
+                        url={`${token.iconUrl}?size=30x30`}
+                        tick={token.symbol.slice(0, 1)}
                       />
                       <p className="text-orange-500 font-semibold">
-                        {token.tick}
+                        {token.symbol}
                       </p>
                     </div>
                     <div className="px-2">
-                      ${" "}
-                      {(
-                        (token.currentPrice / 10 ** 8) *
-                        data.DOGEprice
-                      ).toFixed(3)}
-                    </div>
-                    <div className="hidden sm:inline-block px-2">
-                      ${" "}
-                      {((token.floorPrice / 10 ** 8) * data.DOGEprice).toFixed(
-                        3
-                      )}
+                      $ {Number(token.price).toFixed(2)}
                     </div>
                     <div
                       className={`px-2 ${
-                        token.changePercent >= 0
+                        Number(token.change) >= 0
                           ? "text-green-500"
                           : "text-red-400"
                       }`}
                     >
-                      {token.changePercent > 0 && "+"}
-                      {token.changePercent.toFixed(4)}
+                      {Number(token.change) > 0 && "+"}
+                      {Number(token.change)
+                        ? Number(token.change).toFixed(2)
+                        : 0}
+                      %
                     </div>
                     <div className="hidden sm:inline-block px-2">
-                      $ {((token.volume / 10 ** 8) * data.DOGEprice).toFixed(3)}
+                      $ <NumberFormat number={Number(token.marketCap)} />
                     </div>
                     <div className="px-2 hidden sm:inline-block">
-                      {token.sales}
-                    </div>
-                    <div>{token.holders}</div>
-                    <div className="dark:bg-slate-800 bg-gray-200 p-1 rounded-lg w-[80%] hidden sm:inline-block">
-                      <div
-                        className={`bg-green-500 h-2 w-[${
-                          (Number(token.currentSupply) /
-                            Number(token.maxSupply)) *
-                          100
-                        }%] rounded-lg animate-pulse`}
-                      ></div>
+                      $ <NumberFormat number={Number(token[`24hVolume`])} />
                     </div>
                   </div>
                 );
@@ -230,7 +196,7 @@ const Explorer = () => {
           onPageChange={handlePageClick}
           pageRangeDisplayed={2}
           marginPagesDisplayed={1}
-          pageCount={Math.ceil(data.total / 20)}
+          pageCount={Math.ceil(data.total / 100)}
           previousLabel="<"
           renderOnZeroPageCount={null}
           className="pagination"
