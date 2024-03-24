@@ -7,7 +7,7 @@ import { LuUploadCloud } from "react-icons/lu";
 
 const AttachFileComponent = ({
   type,
-  setInscriptionText,
+  setFile,
   fileName,
   setFileName,
 }) => {
@@ -21,20 +21,22 @@ const AttachFileComponent = ({
     // Do something with the files
     setLoading(true);
     try {
-      const client = new NFTStorageService();
-      console.log(acceptedFiles.length);
-      const cid = await client.storeToken(acceptedFiles);
-      console.log(cid);
+      // const client = new NFTStorageService();
+      console.log(acceptedFiles[0]);
+      setFile(acceptedFiles[0]);
+      // const cid = await client.storeToken(acceptedFiles);
+      // console.log(cid);
       setFileName(acceptedFiles[0].name);
-      setInscriptionText(cid);
+      // setInscriptionText(cid);
     } catch (error) {
       console.log(error);
     }
     setLoading(false);
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: types,
+    accept: [".zip"],
     maxFiles: 1,
   });
 
@@ -61,7 +63,7 @@ const AttachFileComponent = ({
 
   return (
     <>
-      <p className="text-lg font-semibold">{fileName ? fileName : "Upload"} </p>
+      <p className="text-lg font-semibold">Upload</p>
       <p className="mb-4">
         Compress all your files in a single ZIP-file and upload it to get the
         process started.
@@ -75,22 +77,28 @@ const AttachFileComponent = ({
           <Spinner />
         ) : (
           <>
-            <div>
-              <LuUploadCloud className="text-center text-[50px] mx-auto" />
+            {fileName ? (
+              <div className="flex justify-center items-center text-4xl font-bold">
+                {fileName}
+              </div>
+            ) : (
+              <div>
+                <LuUploadCloud className="text-center text-[50px] mx-auto" />
 
-              <p className="text-center font-semibold">
-                Drag and drop your Zip-file here, or click to select it.
-              </p>
+                <p className="text-center font-semibold">
+                  Drag and drop your Zip-file here, or click to select it.
+                </p>
 
-              <p className="text-[12px] text-center">
-                Supported file formats (compressed in a zip-file) in beta: .jpg,
-                .webp, .png
-              </p>
+                <p className="text-[12px] text-center">
+                  Supported file formats (compressed in a zip-file) in beta:
+                  .jpg, .webp, .png
+                </p>
 
-              <p className="text-[12px] text-center">
-                Max. 25KB per file in beta.
-              </p>
-            </div>
+                <p className="text-[12px] text-center">
+                  Max. 25KB per file in beta.
+                </p>
+              </div>
+            )}
           </>
         )}
         <input {...getInputProps()} />

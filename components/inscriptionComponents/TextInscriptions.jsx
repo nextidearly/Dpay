@@ -113,7 +113,7 @@ function TextInscriptions() {
         },
       ],
       inscriptionContent: inscriptionData,
-      isPriority: false,
+      isPriority: true,
     };
 
     try {

@@ -6,7 +6,6 @@ import FeeRecommend from "../UI/FeeRecommend";
 import { Transition } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 import { updateFeeRate } from "@/store/slices/inscribe";
-import { feeAmount } from "@/configs/constants";
 import { Checkbox } from "pretty-checkbox-react";
 
 function TextInscriptions() {
@@ -20,12 +19,14 @@ function TextInscriptions() {
     { name: "Step 3", href: "#", status: "upcoming" },
     { name: "Step 4", href: "#", status: "upcoming" },
   ]);
-  const [inscriptionText, setInscriptionText] = useState("");
   const [destAddress, setDestAddress] = useState("");
-  const [textType, setTextType] = useState(1);
   const [feeOption, setFeeOption] = useState("1000000");
-  const [totalFee, setTotalFee] = useState(2);
   const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState();
+  const [accuracyCheck, setAccuracyCheck] = useState(false);
+  const [inscriptionPricing, setInscriptionPricing] = useState();
+  const [order, setOrder] = useState();
+
   const handleChangeFeeOption = (e) => {
     dispatch(updateFeeRate(e));
   };
@@ -68,6 +69,58 @@ function TextInscriptions() {
 
   const wrapper = useRef(null);
   const [wrapperWidth, setWrapperWidth] = useState(1);
+
+  const handleCreatePrice = async () => {
+    const formData = new FormData();
+    formData.append("zippedInscribeSources", file);
+    formData.append(
+      "receiverConfigs",
+      JSON.stringify([{ amount: 1, address: destAddress }])
+    );
+    formData.append("isPriority", true);
+
+    try {
+      const res = await fetch(`/drc20.explorer/inscribe/job/file/pricing`, {
+        method: "POST",
+        headers: {},
+        body: formData,
+      });
+
+      const pricing = await res.json();
+      setInscriptionPricing(pricing);
+    } catch (error) {
+      setCurrentStep(0);
+      toast.error(
+        "Something went wrong when creating pricing. Please try again."
+      );
+    }
+  };
+
+  const handleCreateOrder = async () => {
+    const formData = new FormData();
+    formData.append("zippedInscribeSources", file);
+    formData.append(
+      "receiverConfigs",
+      JSON.stringify([{ amount: 1, address: destAddress }])
+    );
+    formData.append("isPriority", true);
+
+    try {
+      const res = await fetch(`/drc20.explorer/inscribe/job/file`, {
+        method: "POST",
+        headers: {},
+        body: formData,
+      });
+      const order = await res.json();
+      console.log(order);
+      setOrder(order);
+    } catch (error) {
+      setCurrentStep(0);
+      toast.error(
+        "Something went woring when creating pricsing. please try again."
+      );
+    }
+  };
 
   useEffect(() => {
     function handleResize() {
@@ -115,8 +168,8 @@ function TextInscriptions() {
                 style={{ width: `${wrapperWidth}px` }}
               >
                 <AttachFileComponent
-                  type="image"
-                  setInscriptionText={setInscriptionText}
+                  type="zip"
+                  setFile={setFile}
                   fileName={fileName}
                   setFileName={setFileName}
                 />
@@ -162,18 +215,26 @@ function TextInscriptions() {
                 <p className="text-sm text-center mt-2">
                   Please check your order and confirm it.
                 </p>
-                <div className="flex flex-col mt-2 items-center rounded w-full max-h-[200px] bg-primary-dark/20 cursor-pointer  overflow-y-auto overflow-x-hidden scroll-smooth	transition ease-in-out duration-150">
-                  <textarea
-                    name=""
-                    id=""
-                    cols="20"
-                    rows="5"
-                    placeholder=""
-                    className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
-                    onChange={(e) => setInscriptionText(e.target.value)}
-                    value={fileName}
-                    disabled
-                  ></textarea>
+                <div className="flex flex-col mt-2 items-center rounded w-full transition ease-in-out duration-150">
+                  <div className="dark:bg-gray-700 bg-gray-100 rounded-md min-h-[100px] max-h-[200px] p-2 overflow-y-auto w-full">
+                    {inscriptionPricing?.prices?.shibescriptionCostsBySize.map(
+                      (data, key) => {
+                        return (
+                          <div
+                            key={key}
+                            className="flex p-2 dark:bg-gray-600 bg-gray-200 justify-between rounded-md w-full mb-2"
+                          >
+                            <div className="">{fileName}</div>
+                            <div className="flex itmes-center gap-2">
+                              <p className="text-sm font-semibold">
+                                {data.size} B
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
 
                   <input
                     type="text"
@@ -187,8 +248,8 @@ function TextInscriptions() {
                       animation="jelly"
                       color="danger"
                       icon={<i className="mdi mdi-check" />}
-                      // onChange={(e) => setTextType(2)}
-                      // checked={textType === 2 ? "checked" : ""}
+                      onChange={(e) => setAccuracyCheck(!accuracyCheck)}
+                      checked={accuracyCheck ? "checked" : ""}
                     >
                       I confirm the accuracy of Input Data
                     </Checkbox>
@@ -227,12 +288,7 @@ function TextInscriptions() {
                   setFeeOption={setFeeOption}
                   onChange={handleChangeFeeOption}
                 />
-                <Bills
-                  textData={inscriptionText}
-                  feeAmount={feeAmount}
-                  networkFee={feeOption}
-                  setTotalFee={setTotalFee}
-                />
+                <Bills networkFee={feeOption} pricing={inscriptionPricing} />
               </div>
             </Transition>
 
@@ -261,7 +317,7 @@ function TextInscriptions() {
                 className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
                 style={{ width: `${wrapperWidth}px` }}
               >
-                <WaitingPayment totalFee={totalFee} networkFee={feeOption} />
+                <WaitingPayment networkFee={feeOption} order={order} />
               </div>
             </Transition>
           </div>
@@ -323,8 +379,19 @@ function TextInscriptions() {
             </ol>
             <button
               className="main_btn rounded-md p-2 w-full float-right"
-              disabled={currentStep === 3}
-              onClick={() => nextStep()}
+              disabled={
+                currentStep === 3 ||
+                (currentStep === 0 && (!file || !destAddress)) ||
+                (currentStep === 1 && !accuracyCheck)
+              }
+              onClick={() => {
+                if (currentStep === 0) {
+                  handleCreatePrice();
+                } else if (currentStep === 1) {
+                  handleCreateOrder();
+                }
+                nextStep();
+              }}
             >
               Next
             </button>

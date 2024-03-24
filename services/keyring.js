@@ -347,17 +347,19 @@ class KeyringService extends EventEmitter {
     await this.fullUpdate();
   };
 
-  signTransaction = (EXPrive, psbt, inputs) => {
-    console.log(EXPrive);
+  signTransaction = (isSeedKey, EXPrive, psbt, inputs) => {
+    let simpleKeyring;
 
-    // console.log("simple key ring");
-    const simpleKeyring = new HdKeyring({
-      mnemonic: EXPrive,
-      activeIndexes: [0],
-      hdPath: "m/44'/3'/0'/0",
-      passphrase: "",
-    });
-    // console.log(simpleKeyring);
+    if (isSeedKey) {
+      simpleKeyring = new HdKeyring({
+        mnemonic: EXPrive,
+        activeIndexes: [0],
+        hdPath: "m/44'/3'/0'/0",
+        passphrase: "",
+      });
+    } else {
+      simpleKeyring = new SimpleKeyring([EXPrive]);
+    }
     return simpleKeyring.signTransaction(psbt, inputs);
   };
 

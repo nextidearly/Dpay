@@ -280,8 +280,14 @@ const Wallet = (props) => {
   };
 
   const signPsbt = async (psbt, options) => {
+    let isSeedKey = true;
     // console.log("running sign psbt");
-    const mnemonic = getMnemonic();
+    let mnemonic = getMnemonic();
+
+    if (!mnemonic) {
+      isSeedKey = false;
+      mnemonic = accountInfo?.vault;
+    }
 
     const account = await getCurrentAccount();
     if (!account) console.log("no current account");
@@ -317,7 +323,12 @@ const Wallet = (props) => {
       }
     });
     // console.log("before:", toSignInputs);
-    psbt = await keyring.signTransaction(mnemonic, psbt, toSignInputs);
+    psbt = await keyring.signTransaction(
+      isSeedKey,
+      mnemonic,
+      psbt,
+      toSignInputs
+    );
     // const validator =
     if (options && options.autoFinalized == false) {
       // do not finalize

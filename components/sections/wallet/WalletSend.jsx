@@ -129,6 +129,7 @@ export default function WalletSend({ setContentType }) {
     wallet
       .createBitcoinTx(toInfo, toSatoshis, feeRate, autoAdjust)
       .then((data) => {
+        console.log(data);
         setRawTxInfo(data);
         setCreatingTx(false);
         dispatch(

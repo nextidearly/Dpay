@@ -66,10 +66,11 @@ const WaitingPayment = ({ networkFee, order }) => {
         false
       )
       .then((data) => {
-        console.log(data)
+        console.log(data);
         pushBitcoinTx(data);
       })
       .catch((e) => {
+        console.log(e);
         toast.error(`Something went wrong`);
         setLoading(false);
       });
