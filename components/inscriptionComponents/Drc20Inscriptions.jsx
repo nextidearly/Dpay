@@ -1,12 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Bills from "../UI/Bills";
 import WaitingPayment from "../WaitingPayment";
 import FeeRecommend from "../UI/FeeRecommend";
 import { Transition } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 import { updateFeeRate } from "@/store/slices/inscribe";
-import { feeAmount } from "@/configs/constants";
 import { Checkbox } from "pretty-checkbox-react";
+import toast from "react-hot-toast";
+import { ImSpinner10 } from "react-icons/im";
 
 function TextInscriptions() {
   const dispatch = useDispatch();
@@ -23,9 +24,17 @@ function TextInscriptions() {
   const [destAddress, setDestAddress] = useState("");
   const [textType, setTextType] = useState(1);
   const [feeOption, setFeeOption] = useState("1000000");
-  const [totalFee, setTotalFee] = useState(2);
 
   const [amount, setAmount] = useState("");
+  const [supply, setSupply] = useState("");
+  const [limitPerMint, setLimitPerMint] = useState("");
+  const [accuracyCheck, setAccuracyCheck] = useState();
+
+  const [inscriptionData, setInscriptionData] = useState([]);
+  const [inscriptionPricing, setInscriptionPricing] = useState();
+  const [order, setOrder] = useState();
+
+  const [loading, setLoading] = useState(false);
 
   const handleChangeFeeOption = (e) => {
     dispatch(updateFeeRate(e));
@@ -50,6 +59,9 @@ function TextInscriptions() {
   const nextStep = async () => {
     setMoving("right");
     // getValues('firstname')
+    if (currentStep === 0) {
+      return;
+    }
 
     if (true) {
       setSteps((old) =>
@@ -69,6 +81,134 @@ function TextInscriptions() {
 
   const wrapper = useRef(null);
   const [wrapperWidth, setWrapperWidth] = useState(1);
+  const op = useMemo(() => {
+    if (textType === 1) {
+      return "mint";
+    } else if (textType === 2) {
+      return "deploy";
+    } else if (textType === 3) {
+      return "transfer";
+    }
+  }, [textType]);
+
+  const handleCreatePrice = async () => {
+    setLoading(true);
+    let tokenInfo;
+    if (textType === 1 || textType === 3) {
+      const res = await fetch(
+        `/drc20.explorer/ticks/byName/${inscriptionText}`
+      );
+      if (!res.ok) {
+        toast.error("Tick not found.");
+        setLoading(false);
+        return;
+      }
+      tokenInfo = await res.json();
+    }
+
+    const data = [];
+
+    if (textType === 1 || textType === 3) {
+      const fullMints = Math.floor(amount / tokenInfo.limitPerMint);
+
+      for (let i = 0; i < fullMints; i++) {
+        data.push({
+          p: "drc-20",
+          op: op,
+          tick: inscriptionText,
+          amt: tokenInfo.limitPerMint.toString(),
+        });
+      }
+
+      const remaining = amount % tokenInfo.limitPerMint;
+      if (remaining > 0) {
+        data.push({
+          p: "drc-20",
+          op: op,
+          tick: inscriptionText,
+          amt: remaining.toString(),
+        });
+      }
+    } else if (textType === 2) {
+      data.push({
+        p: "drc-20",
+        op: op,
+        tick: inscriptionText,
+        max: supply,
+        lim: limitPerMint,
+      });
+    }
+
+    setInscriptionData(data);
+
+    try {
+      const res = await fetch(`/drc20.explorer/inscribe/job/drc-20/pricing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+        body: JSON.stringify({
+          inscriptionContent: data,
+          isPriority: true,
+        }),
+      });
+
+      if (!res.ok) {
+        const pricing = await res.json();
+        toast.error(pricing?.errors[0]?.msg);
+      } else {
+        const pricing = await res.json();
+        setInscriptionPricing(pricing);
+      }
+    } catch (error) {
+      setCurrentStep(0);
+      toast.error(
+        "Something went woring when creating pricsing. please try again."
+      );
+    }
+    setLoading(false);
+    if (true) {
+      setSteps((old) =>
+        old.map((v, i) => {
+          if (i === currentStep) {
+            v.status = "complete";
+          } else if (i === currentStep + 1) {
+            v.status = "current";
+          }
+          return v;
+        })
+      );
+      setCurrentStep(currentStep + 1);
+    }
+    return false;
+  };
+
+  const handleCreateOrder = async () => {
+    const data = {
+      receiverConfigs: [
+        {
+          amount: 1,
+          address: destAddress,
+        },
+      ],
+      inscriptionContent: inscriptionData,
+      isPriority: true,
+    };
+
+    try {
+      const res = await fetch(`/drc20.explorer/inscribe/job/drc-20`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+        body: JSON.stringify(data),
+      });
+
+      const order = await res.json();
+      setOrder(order);
+    } catch (error) {
+      setCurrentStep(0);
+      toast.error(
+        "Something went woring when creating pricsing. please try again."
+      );
+    }
+  };
 
   useEffect(() => {
     function handleResize() {
@@ -156,7 +296,7 @@ function TextInscriptions() {
                 />
                 {textType !== 2 ? (
                   <input
-                    type="text"
+                    type="number"
                     placeholder="Amount"
                     className="w-full my-3 rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
                     value={amount}
@@ -165,18 +305,18 @@ function TextInscriptions() {
                 ) : (
                   <>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Total Supply"
                       className="w-full my-3 rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      value={supply}
+                      onChange={(e) => setSupply(e.target.value)}
                     />
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Limit Per Mint"
                       className="w-full my-3 rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      value={limitPerMint}
+                      onChange={(e) => setLimitPerMint(e.target.value)}
                     />
                   </>
                 )}
@@ -222,17 +362,21 @@ function TextInscriptions() {
                   Please check your order and confirm it.
                 </p>
                 <div className="flex flex-col mt-2 items-center rounded w-full max-h-[200px] bg-primary-dark/20 cursor-pointer  overflow-y-auto overflow-x-hidden scroll-smooth	transition ease-in-out duration-150">
-                  <textarea
-                    name=""
-                    id=""
-                    cols="20"
-                    rows="5"
-                    placeholder=""
-                    className="w-full rounded-md p-3 dark:bg-gray-700 bg-gray-100 focus:outline-none"
-                    onChange={(e) => setInscriptionText(e.target.value)}
-                    value={inscriptionText}
-                    disabled
-                  ></textarea>
+                  {inscriptionData.map((data, key) => {
+                    return (
+                      <div
+                        key={key}
+                        className="flex p-2 dark:bg-gray-600 bg-gray-200 justify-between rounded-md w-full mb-2"
+                      >
+                        <div className="">{JSON.stringify(data)}</div>
+                        <div className="flex itmes-center gap-2">
+                          <p className="text-sm font-semibold">
+                            {JSON.stringify(data).length} B
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
 
                   <input
                     type="text"
@@ -246,8 +390,8 @@ function TextInscriptions() {
                       animation="jelly"
                       color="danger"
                       icon={<i className="mdi mdi-check" />}
-                      // onChange={(e) => setTextType(2)}
-                      // checked={textType === 2 ? "checked" : ""}
+                      onChange={(e) => setAccuracyCheck(!accuracyCheck)}
+                      checked={accuracyCheck ? "checked" : ""}
                     >
                       I confirm the accuracy of Input Data
                     </Checkbox>
@@ -286,12 +430,7 @@ function TextInscriptions() {
                   setFeeOption={setFeeOption}
                   onChange={handleChangeFeeOption}
                 />
-                <Bills
-                  textData={inscriptionText}
-                  feeAmount={feeAmount}
-                  networkFee={feeOption}
-                  setTotalFee={setTotalFee}
-                />
+                <Bills networkFee={feeOption} pricing={inscriptionPricing} />
               </div>
             </Transition>
 
@@ -320,7 +459,7 @@ function TextInscriptions() {
                 className="dark:bg-slate-800 bg-gray-200/80 rounded-md p-3"
                 style={{ width: `${wrapperWidth}px` }}
               >
-                <WaitingPayment totalFee={totalFee} networkFee={feeOption} />
+                <WaitingPayment networkFee={feeOption} order={order} />
               </div>
             </Transition>
           </div>
@@ -381,11 +520,26 @@ function TextInscriptions() {
               ))}
             </ol>
             <button
-              className="main_btn rounded-md p-2 w-full float-right"
-              disabled={currentStep === 3}
-              onClick={() => nextStep()}
+              className="main_btn rounded-md p-2 w-full float-right flex justify-center items-center"
+              disabled={
+                currentStep === 3 ||
+                (currentStep === 0 && !destAddress) ||
+                (currentStep === 1 && !accuracyCheck)
+              }
+              onClick={() => {
+                if (currentStep === 0) {
+                  handleCreatePrice();
+                } else if (currentStep === 1) {
+                  handleCreateOrder();
+                }
+                nextStep();
+              }}
             >
-              Next
+              {loading ? (
+                <ImSpinner10 className="animate-spin text-lg" />
+              ) : (
+                "Next"
+              )}
             </button>
           </nav>
         </div>

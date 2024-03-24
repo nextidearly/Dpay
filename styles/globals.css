@@ -150,7 +150,7 @@ iframe {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-}
+} 
 
 iframe html body {
   height: 80vh !important;
