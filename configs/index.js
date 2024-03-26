@@ -1,7 +1,7 @@
 export const navigation = [
   {
-    label: "Market",
-    link: "/marketplace",
+    label: "Launchpad",
+    link: "/launchpad",
     hasMenu: false,
   },
   {
