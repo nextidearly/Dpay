@@ -44,7 +44,7 @@ const Balances = () => {
     }
   };
 
-  const getLtc20 = async () => {
+  const getdrc20 = async () => {
     setType("drc20");
     setFetchingData(true);
     try {
@@ -237,7 +237,7 @@ const Balances = () => {
                 className={`py-2 sm:w-24 h-full w-full focus:outline-none text-center cursor-pointer text-sm  rounded-md ${
                   type == "drc20" ? "main_btn" : ""
                 }`}
-                onClick={() => getLtc20()}
+                onClick={() => getdrc20()}
               >
                 DRC-20
               </button>
