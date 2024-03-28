@@ -139,7 +139,10 @@ const Wallet = (props) => {
       updateBalance({
         inscriptions: [],
         ltc20: [],
-        utxos: [],
+      })
+    );
+    dispatch(
+      updateBalance2({
         balance: 0,
       })
     );
