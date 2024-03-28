@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import encryptor from "browser-passworder";
 import keyring from "@/services/keyring";
 import openApi from "@/services/openAPI";
@@ -11,9 +11,8 @@ import {
   vault,
   setCurrentKeyRing,
   updateBalance,
+  updateBalance2,
 } from "../store/slices/wallet";
-import { ref, push } from "firebase/database";
-import { db } from "@/services/firebase";
 import { deviceId } from "../store/slices/openApi";
 import { updatePrice } from "../store/slices/wallet";
 import randomstring from "randomstring";
@@ -36,6 +35,7 @@ var ECPair = ECPairFactory(ecc);
 export const WalletContext = React.createContext();
 
 const Wallet = (props) => {
+  const isMounted = useRef(false);
   const dispatch = useDispatch();
   const accountInfo = useSelector(
     (state) => state?.persistedReducer?.walletReducer?.value
@@ -135,6 +135,14 @@ const Wallet = (props) => {
     dispatch(setCurrentKeyRing({}));
     dispatch(vault(""));
     dispatch(booted({}));
+    dispatch(
+      updateBalance({
+        inscriptions: [],
+        ltc20: [],
+        utxos: [],
+        balance: 0,
+      })
+    );
   };
 
   const getInscriptionUtxoDetail = async (inscriptionId) => {
@@ -148,22 +156,18 @@ const Wallet = (props) => {
 
   const fetchbalance = async () => {
     try {
-  
-
       if (accountInfo?.account) {
-        const res = await openApi.sync(
+        await openApi.sync(accountInfo?.account?.accounts[0]?.address);
+
+        const balance = await openApi.getAddressBalance(
           accountInfo?.account?.accounts[0]?.address
         );
 
-        const utxos = await openApi.getAddressBalance(
-          accountInfo?.account?.accounts[0]?.address
+        dispatch(
+          updateBalance2({
+            balance: balance.confirm_amount,
+          })
         );
-        let balance = 0;
-        if (utxos.length > 0) {
-          utxos.map((utxo) => {
-            balance += utxo.satoshis;
-          });
-        }
 
         const inscriptions = await openApi.getAddressInscriptions(
           accountInfo?.account?.accounts[0]?.address,
@@ -181,13 +185,11 @@ const Wallet = (props) => {
           updateBalance({
             inscriptions: inscriptions,
             ltc20: ltc20,
-            utxos: utxos,
-            balance: balance / 10 ** 8,
           })
         );
       }
     } catch (error) {
-       console.log(error);
+      console.log(error);
     }
   };
 
@@ -726,7 +728,10 @@ const Wallet = (props) => {
   }, [apiInfo]);
 
   useEffect(() => {
-    getPrice();
+    if (!isMounted.current) {
+      getPrice();
+      isMounted.current = true;
+    }
   }, []);
 
   return (

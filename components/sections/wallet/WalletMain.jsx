@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { FaArrowsRotate } from "react-icons/fa6";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -19,6 +19,7 @@ export default function WalletMain({ setContentType }) {
   const { account, ltc20, balance, inscriptions, price } = useWallet();
   const wallet = useContext(WalletContext);
   const router = useRouter();
+  const isMounted = useRef(false);
   const [listType, setListType] = useState("dorginals");
   const [pending, setPending] = useState(true);
   const [lists, setLists] = useState();
@@ -41,9 +42,13 @@ export default function WalletMain({ setContentType }) {
   };
 
   useEffect(() => {
-    fetchData();
+    if (!isMounted.current) {
+      fetchData();
+      isMounted.current = true;
+    }
   }, []);
 
+  console.log(balance);
   return (
     <>
       <div className="p-4 rounded-lg dark:bg-slate-900 cs-border bg-white">

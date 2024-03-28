@@ -65,9 +65,10 @@ export const wallet = createSlice({
     },
     updateBalance: (state, action) => {
       state.value.inscriptions = action.payload.inscriptions;
-      state.value.balance = action.payload.balance;
-      state.value.utxos = action.payload.utxos;
       state.value.ltc20 = action.payload.ltc20;
+    },
+    updateBalance2: (state, action) => {
+      state.value.balance = action.payload.balance;
     },
   },
 });
@@ -85,5 +86,6 @@ export const {
   updateInscriptions,
   updatePrice,
   updateBalance,
+  updateBalance2,
 } = wallet.actions;
 export default wallet.reducer;

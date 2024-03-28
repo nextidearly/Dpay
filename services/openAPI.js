@@ -131,7 +131,9 @@ class OpenApiService {
   // };
 
   getAddressBalance = async (address) => {
-    const data = await this.httpGet(`/address/btc-utxo?address=${address}`);
+    const data = await this.httpGet(`/address/balance`, {
+      address,
+    });
     if (data) {
       if (data.status == API_STATUS.FAILED) {
         console.log(data.message);
@@ -241,7 +243,7 @@ class OpenApiService {
 
   pushTx = async (rawTx) => {
     const data = await this.httpPost("/tx/broadcast", {
-      rawTx
+      rawTx,
     });
     return data;
   };
